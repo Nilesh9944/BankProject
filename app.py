@@ -1,10 +1,22 @@
 import streamlit as st
 import pandas as pd
 import pickle
+from pathlib import Path
 
-# Load the trained model
-with open('xgb_model.pkl', 'rb') as f:
-    model = pickle.load(f)
+# Load the trained model from either supported filename
+model = None
+for model_path in [Path("xgb.pkl"), Path("xgb_model.pkl")]:
+    if model_path.exists():
+        try:
+            with model_path.open("rb") as f:
+                model = pickle.load(f)
+            break
+        except Exception:
+            continue
+
+if model is None:
+    st.error("Could not load the trained model. Expected xgb.pkl or xgb_model.pkl in the app directory.")
+    st.stop()
 
 # Set up the Streamlit app
 st.title("Bankruptcy Prediction Model")
